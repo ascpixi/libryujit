@@ -17,7 +17,7 @@
 #define MAKE_TARGET_DLLNAME_W(name) name W(".dll")
 #define MAKE_TARGET_DLLNAME_A(name) name ".dll"
 #else // TARGET_WINDOWS
-#ifdef TARGET_OSX
+#ifdef TARGET_APPLE
 #define MAKE_TARGET_DLLNAME_W(name) W("lib") name W(".dylib")
 #define MAKE_TARGET_DLLNAME_A(name)  "lib" name  ".dylib"
 #else
@@ -686,9 +686,9 @@ typedef struct _T_KNONVOLATILE_CONTEXT_POINTERS {
 
 #if defined(TARGET_OSX) && defined(TARGET_X86)
 #define DAC_CS_NATIVE_DATA_SIZE 76
-#elif defined(TARGET_OSX) && defined(TARGET_AMD64)
+#elif defined(TARGET_APPLE) && defined(TARGET_AMD64)
 #define DAC_CS_NATIVE_DATA_SIZE 120
-#elif defined(TARGET_OSX) && defined(TARGET_ARM64)
+#elif defined(TARGET_APPLE) && defined(TARGET_ARM64)
 #define DAC_CS_NATIVE_DATA_SIZE 120
 #elif defined(TARGET_FREEBSD) && defined(TARGET_X86)
 #define DAC_CS_NATIVE_DATA_SIZE 12
@@ -720,6 +720,8 @@ typedef struct _T_KNONVOLATILE_CONTEXT_POINTERS {
 #define DAC_CS_NATIVE_DATA_SIZE 56
 #elif defined(__sun) && defined(TARGET_AMD64)
 #define DAC_CS_NATIVE_DATA_SIZE 48
+#elif defined(TARGET_HAIKU) && defined(TARGET_AMD64)
+#define DAC_CS_NATIVE_DATA_SIZE 56
 #else
 #warning
 #error  DAC_CS_NATIVE_DATA_SIZE is not defined for this architecture. This should be same value as PAL_CS_NATIVE_DATA_SIZE (aka sizeof(PAL_CS_NATIVE_DATA)).
