@@ -97,6 +97,7 @@ set( JIT_SOURCES
   libryujit/tls.cpp
   libryujit/polyfill.cpp
   libryujit/lib/nanoprintf.cpp
+  libryujit/utf8.cpp
 
   abi.cpp
   alloc.cpp
