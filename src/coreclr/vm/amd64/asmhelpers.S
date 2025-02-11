@@ -296,6 +296,8 @@ LEAF_END GetThreadVarsAddress, _TEXT
 #ifndef TARGET_APPLE
 # EXTERN_C void* GetTlsIndexObjectDescOffset();
 
+#ifndef TARGET_ANDROID
+
 # <NOTE>
 # Helper to calculate the offset of native thread local variable `t_ThreadStatics`. The offset has to be found at runtime
 # once linker does its relocation and fixup of thread locals. The runtime gets the address of this function, so
@@ -318,7 +320,8 @@ LEAF_ENTRY GetTlsIndexObjectDescOffset, _TEXT
         call    EXTERNAL_C_FUNC(__tls_get_addr)                      # dummy call to have linker see the code pattern to replace the offset
         int 3
 LEAF_END GetTlsIndexObjectDescOffset, _TEXT
-#endif
+#endif // !TARGET_ANDROID
+#endif // !TARGET_OSX
 
 LEAF_ENTRY  JIT_PollGC, _TEXT
         PREPARE_EXTERNAL_VAR g_TrapReturningThreads, rax
@@ -330,3 +333,22 @@ LOCAL_LABEL(JIT_PollGCRarePath):
         mov     rax, [rax]
         jmp     rax
 LEAF_END  JIT_PollGC, _TEXT
+
+#ifdef FEATURE_INTERPRETER
+NESTED_ENTRY InterpreterStub, _TEXT, NoHandler
+
+        PROLOG_WITH_TRANSITION_BLOCK 8, 0, 0, 0, 0
+        mov             [rsp], rax // Return buffer in Swift calling convention
+
+        #
+        # call ExecuteInterpretedMethod
+        #
+        lea             rdi, [rsp + __PWTB_TransitionBlock]     // pTransitionBlock*
+        mov             rsi, METHODDESC_REGISTER
+        call            C_FUNC(ExecuteInterpretedMethod)
+
+        mov             rax, [rsp]
+        EPILOG_WITH_TRANSITION_BLOCK_RETURN
+
+NESTED_END InterpreterStub, _TEXT
+#endif // FEATURE_INTERPRETER

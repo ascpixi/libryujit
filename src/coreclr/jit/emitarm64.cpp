@@ -8012,7 +8012,7 @@ void emitter::emitIns_R_S(instruction ins, emitAttr attr, regNumber reg1, int va
                 regNumber rsvdReg = codeGen->rsGetRsvdReg();
 
                 // add rsvd, fp, #imm
-                emitIns_R_R_Imm(INS_add, EA_8BYTE, rsvdReg, reg2, imm);
+                emitIns_R_R_Imm(INS_add, EA_8BYTE, rsvdReg, encodingZRtoSP(reg2), imm);
                 // str p0, [rsvd, #0, mul vl]
                 emitIns_R_R_I(ins, attr, reg1, rsvdReg, 0);
 
@@ -8285,7 +8285,7 @@ void emitter::emitIns_S_R(instruction ins, emitAttr attr, regNumber reg1, int va
                 regNumber rsvdReg = codeGen->rsGetRsvdReg();
 
                 // add rsvd, fp, #imm
-                emitIns_R_R_Imm(INS_add, EA_8BYTE, rsvdReg, reg2, imm);
+                emitIns_R_R_Imm(INS_add, EA_8BYTE, rsvdReg, encodingZRtoSP(reg2), imm);
                 // str p0, [rsvd, #0, mul vl]
                 emitIns_R_R_I(ins, attr, reg1, rsvdReg, 0);
 
@@ -12311,7 +12311,7 @@ SKIP_GC_UPDATE:
 
                 // If there are 2 GC vars in this instrDesc, get the 2nd variable
                 // that should be tracked.
-                adr2     = emitComp->lvaFrameAddress(varNum2, &FPbased2, true);
+                adr2     = emitComp->lvaFrameAddress(varNum2, &FPbased2, FPbased);
                 ofs2Dist = EA_SIZE_IN_BYTES(size);
 #ifdef DEBUG
                 assert(FPbased == FPbased2);
