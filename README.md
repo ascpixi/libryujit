@@ -8,4 +8,9 @@ The goals of this experiment are:
 
 The project is a fork of `dotnet/runtime`, and tries to make as little changes to the existing codebase as possible to simplify keeping track with upstream. Instead of modifying existing .NET code in large capacities (that go beyond simple patching), we try to build on top of it.
 
-In order to build `libclrjit.a`, run `./build.sh clr.jit`.
+In order to build `libclrjit.a`, run `"./src/coreclr/build-runtime.sh" <arch> <configuration> -os <OS> -outputrid <RID> -component jit`.
+
+For example:
+```sh
+"./src/coreclr/build-runtime.sh" -x64 -debug -os linux -outputrid linux-x64 -component jit`.
+```
