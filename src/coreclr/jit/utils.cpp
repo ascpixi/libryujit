@@ -1030,9 +1030,11 @@ void ConfigDoubleArray::Init(const char* str)
             p++;
             continue;
         }
+
+        int   errnoResult;
         char* pNext = nullptr;
-        strtod(p, &pNext);
-        if (errno == 0)
+        strtod_errno(p, &pNext, &errnoResult);
+        if (errnoResult == 0)
         {
             numValues++;
         }
@@ -1051,9 +1053,10 @@ void ConfigDoubleArray::Init(const char* str)
             continue;
         }
 
+        int    errnoResult;
         char*  pNext = nullptr;
-        double val   = strtod(p, &pNext);
-        if (errno == 0)
+        double val   = strtod_errno(p, &pNext, &errnoResult);
+        if (errnoResult == 0)
         {
             m_values[numValues++] = val;
         }

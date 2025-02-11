@@ -57,6 +57,9 @@ extern "C" FILE* ryujit_host_get_stdout();
 // parameter is always obtained via other `ryujit_host_` functions.
 extern "C" void ryujit_host_write(FILE* stream, const char* buffer);
 
+// Similar to "strtod", but writes errno into the "errno" parameter.
+extern "C" double strtod_errno(const char* __restrict __nptr, char** __restrict __endptr, int* __errno);
+
 // Represents an allocator, where all allocation requests are passed through
 // `ryujit_host_alloc` and `ryujit_host_free`.
 template <typename T>
