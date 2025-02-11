@@ -58,7 +58,8 @@ extern "C" DLLEXPORT void jitStartup(ICorJitHost* jitHost)
         return;
     }
 
-#ifdef HOST_UNIX
+//#ifdef HOST_UNIX
+#if FALSE
     int err = PAL_InitializeDLL();
     if (err != 0)
     {
