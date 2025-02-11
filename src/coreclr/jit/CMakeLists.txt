@@ -98,6 +98,7 @@ set( JIT_SOURCES
   libryujit/polyfill.cpp
   libryujit/lib/nanoprintf.cpp
   libryujit/utf8.cpp
+  libryujit/check.cpp
 
   abi.cpp
   alloc.cpp
