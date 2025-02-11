@@ -1,6 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+// We currently do not emit DLLMain functions. libryujit is compiled as a static
+// library. This file exists mainly to prevent merge conflicts.
+#if FALSE
+
 #include "jitpch.h"
 #ifdef _MSC_VER
 #pragma hdrstop
@@ -31,3 +35,5 @@ extern "C" DLLEXPORT BOOL WINAPI DllMain(HANDLE hInstance, DWORD dwReason, LPVOI
 
     return TRUE;
 }
+
+#endif
