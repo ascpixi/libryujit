@@ -72,11 +72,11 @@ public:
 
     void Init()
     {
-        LIMITED_METHOD_CONTRACT;
-        LARGE_INTEGER time;
-        if (!QueryPerformanceCounter(&time))
-            time.QuadPart = GetTickCount();
-        Init((int)time.u.LowPart ^ GetCurrentThreadId() ^ GetCurrentProcessId());
+        //LIMITED_METHOD_CONTRACT;
+        //LARGE_INTEGER time;
+        //if (!QueryPerformanceCounter(&time))
+        //    time.QuadPart = GetTickCount();
+        //Init((int)time.u.LowPart ^ GetCurrentThreadId() ^ GetCurrentProcessId());
     }
 
     void Init(int Seed)
