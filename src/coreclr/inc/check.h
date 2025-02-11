@@ -91,7 +91,7 @@ protected:
     static  size_t s_cLeakedBytes;
     static  size_t s_cNumFailures;
 
-    static thread_local LONG t_count;
+    static /*thread_local*/ LONG t_count;
 #endif
 
     static BOOL s_neverEnforceAsserts;

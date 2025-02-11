@@ -17,7 +17,7 @@
 size_t CHECK::s_cLeakedBytes = 0;
 size_t CHECK::s_cNumFailures = 0;
 
-thread_local LONG CHECK::t_count;
+/*thread_local*/ LONG CHECK::t_count;
 #endif
 
 BOOL CHECK::s_neverEnforceAsserts = 0;
