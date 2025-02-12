@@ -3364,12 +3364,12 @@ void Compiler::compInitOptions(JitFlags* jitFlags)
 #endif // UNIX_AMD64_ABI
 #endif
 
-#if defined(DEBUG) && defined(TARGET_ARM64)
-    if ((s_pJitMethodSet == nullptr) || s_pJitMethodSet->IsActiveMethod(info.compFullName, info.compMethodHash()))
-    {
-        opts.compJitSaveFpLrWithCalleeSavedRegisters = JitConfig.JitSaveFpLrWithCalleeSavedRegisters();
-    }
-#endif // defined(DEBUG) && defined(TARGET_ARM64)
+// #if defined(DEBUG) && defined(TARGET_ARM64)
+//     if ((s_pJitMethodSet == nullptr) || s_pJitMethodSet->IsActiveMethod(info.compFullName, info.compMethodHash()))
+//     {
+//         opts.compJitSaveFpLrWithCalleeSavedRegisters = JitConfig.JitSaveFpLrWithCalleeSavedRegisters();
+//     }
+// #endif // defined(DEBUG) && defined(TARGET_ARM64)
 
 #if defined(TARGET_AMD64)
     rbmAllFloat         = RBM_ALLFLOAT_INIT;
