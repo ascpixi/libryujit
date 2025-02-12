@@ -12,6 +12,8 @@
 #include "gcinfoencoder.h"
 #include "targetosarch.h"
 
+#include "../jit/libryujit/errorhandling.h"
+
 #ifdef _DEBUG
     #ifndef LOGGING
         #define LOGGING
@@ -294,9 +296,12 @@ public:
     }
 };
 
-class GcInfoNoMemoryException
-{
-};
+// class GcInfoNoMemoryException
+// {
+// };
+
+// Arbitrary value that represents that would usually be the GcInfoNoMemoryException.
+#define NO_MEMORY_EXCEPTION 0x8007000E
 
 class GcInfoHashBehavior
 {
@@ -309,9 +314,9 @@ public:
 
     static const unsigned s_minimum_allocation = 7;
 
-    inline static void DECLSPEC_NORETURN NoMemory()
+    inline static void NoMemory()
     {
-        throw GcInfoNoMemoryException();
+        exc_throw(NO_MEMORY_EXCEPTION);
     }
 };
 
@@ -1727,57 +1732,87 @@ void GcInfoEncoder::Build()
         // Create a hash table for storing the locations of the live sets
         LiveStateHashTable hashMap(m_pAllocator);
 
+        struct Captures {
+            GcInfoEncoder* self;
+            bool* outOfMemory;
+            LifetimeTransition** pCurrent;
+            LifetimeTransition** pTransitions;
+            LifetimeTransition** pEndTransitions;
+            UINT32* callSite;
+            UINT32* callSiteIndex;
+            LiveStateHashTable* hashMap;
+            BitArray* liveState;
+        } captures;
+
         bool outOfMemory = false;
-        try
+
+        captures.self = this;
+        captures.outOfMemory = &outOfMemory;
+        captures.pCurrent = &pCurrent;
+        captures.pTransitions = &pTransitions;
+        captures.pEndTransitions = &pEndTransitions;
+        captures.callSite = &callSite;
+        captures.callSiteIndex = &callSiteIndex;
+        captures.hashMap = &hashMap;
+        captures.liveState = &liveState;
+
+        TRY (&captures, Captures*, pCapturesOuter)
         {
-            for(pCurrent = pTransitions; pCurrent < pEndTransitions; )
+            auto c = pCapturesOuter;
+            auto self = c->self;
+
+            for(*c->pCurrent = *c->pTransitions; *c->pCurrent < *c->pEndTransitions; )
             {
-                if(pCurrent->CodeOffset >= callSite)
+                if((*(c->pCurrent))->CodeOffset >= *c->callSite)
                 {
                     // Time to record the call site
 
                     // Add it to the table if it doesn't exist
                     UINT32 liveStateOffset = 0;
-                    if (!hashMap.Lookup(&liveState, &liveStateOffset))
+                    if (!c->hashMap->Lookup(c->liveState, &liveStateOffset))
                     {
-                        BitArray * newLiveState = new (m_pAllocator) BitArray(m_pAllocator, m_NumSlots);
-                        *newLiveState = liveState;
-                        hashMap.Set(newLiveState, (UINT32)(-1));
+                        BitArray * newLiveState = new (self->m_pAllocator) BitArray(self->m_pAllocator, self->m_NumSlots);
+                        *newLiveState = *c->liveState;
+                        c->hashMap->Set(newLiveState, (UINT32)(-1));
                     }
 
 
-                    if(++callSiteIndex == m_NumCallSites)
+                    if(++*c->callSiteIndex == self->m_NumCallSites)
                         break;
 
-                    callSite = m_pCallSites[callSiteIndex];
+                    *c->callSite = self->m_pCallSites[*c->callSiteIndex];
                 }
                 else
                 {
-                    UINT32 slotIndex = pCurrent->SlotId;
-                    BYTE becomesLive = pCurrent->BecomesLive;
+                    UINT32 slotIndex = (*c->pCurrent)->SlotId;
+                    BYTE becomesLive = (*c->pCurrent)->BecomesLive;
                     _ASSERTE((liveState.ReadBit(slotIndex) && !becomesLive)
                             || (!liveState.ReadBit(slotIndex) && becomesLive));
-                    liveState.WriteBit(slotIndex, becomesLive);
-                    pCurrent++;
+                    c->liveState->WriteBit(slotIndex, becomesLive);
+                    *c->pCurrent++;
                 }
             }
 
             // Check for call sites at offsets past the last transition
-            if (callSiteIndex < m_NumCallSites)
+            if (*c->callSiteIndex < self->m_NumCallSites)
             {
                 UINT32 liveStateOffset = 0;
-                if (!hashMap.Lookup(&liveState, &liveStateOffset))
+                if (!c->hashMap->Lookup(c->liveState, &liveStateOffset))
                 {
-                    BitArray * newLiveState = new (m_pAllocator) BitArray(m_pAllocator, m_NumSlots);
-                    *newLiveState = liveState;
-                    hashMap.Set(newLiveState, (UINT32)(-1));
+                    BitArray * newLiveState = new (self->m_pAllocator) BitArray(self->m_pAllocator, self->m_NumSlots);
+                    *newLiveState = *c->liveState;
+                    c->hashMap->Set(newLiveState, (UINT32)(-1));
                 }
             }
         }
-        catch (GcInfoNoMemoryException&)
+        CATCH (err, Captures*, pCapturesOuter)
         {
-            outOfMemory = true;
-        }
+            if (err == NO_MEMORY_EXCEPTION)
+            {
+                auto c = pCapturesOuter;
+                *c->outOfMemory = true;
+            }
+        } END_CATCH;
 
         if (outOfMemory)
         {
