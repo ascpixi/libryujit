@@ -99,6 +99,7 @@ set( JIT_SOURCES
   libryujit/lib/nanoprintf.cpp
   libryujit/utf8.cpp
   libryujit/check.cpp
+  libryujit/forwards/check.cpp
 
   abi.cpp
   alloc.cpp

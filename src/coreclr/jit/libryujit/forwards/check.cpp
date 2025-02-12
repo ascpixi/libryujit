@@ -1,4 +1,4 @@
-#include "../../inc/check.inl"
+#include "../../../inc/check.inl"
 
 BOOL CHECK::s_neverEnforceAsserts = 0;
 
