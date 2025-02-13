@@ -48,7 +48,7 @@ extern "C" void* ryujit_host_get_tls();
 
 // Invoked when an unrecovable internal error occurs. The `msg` parameter
 // describes the cause of the error.
-extern "C" void ryujit_host_panic(const char* msg);
+extern "C" [[noreturn]] void ryujit_host_panic(const char* msg);
 
 // Gets a handle to the standard output stream of the JIT.
 extern "C" FILE* ryujit_host_get_stdout();

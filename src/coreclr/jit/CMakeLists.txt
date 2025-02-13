@@ -99,7 +99,9 @@ set( JIT_SOURCES
   libryujit/lib/nanoprintf.cpp
   libryujit/utf8.cpp
   libryujit/forwards/check.cpp
-  libryujit/forwards/gcinfoencoder.cpp
+  libryujit/forwards/gcinfo/gcinfoencoder.cpp
+  libryujit/forwards/gcinfo/arraylist.cpp
+  libryujit/forwards/gcinfo/simplerhash.cpp
 
   abi.cpp
   alloc.cpp

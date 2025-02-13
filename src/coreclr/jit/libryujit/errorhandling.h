@@ -71,7 +71,7 @@ void try_catch(void* capture, void (*block)(void*), void (*handler)(int, void*))
 void try_finally(std::function<void()> block, std::function<void()> finally);
 
 // Throws an exception which may be caught with `try_catch` or `try_finally`.
-void exc_throw(int val);
+[[noreturn]] void exc_throw(int val);
 
 #define TRY(capture_from, capture_as_type, capture_as_name)                                                            \
     {                                                                                                                  \

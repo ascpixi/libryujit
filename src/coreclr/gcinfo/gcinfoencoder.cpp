@@ -314,7 +314,7 @@ public:
 
     static const unsigned s_minimum_allocation = 7;
 
-    inline static void NoMemory()
+    inline static void DECLSPEC_NORETURN NoMemory()
     {
         exc_throw(NO_MEMORY_EXCEPTION);
     }
@@ -1786,8 +1786,8 @@ void GcInfoEncoder::Build()
                 {
                     UINT32 slotIndex = (*c->pCurrent)->SlotId;
                     BYTE becomesLive = (*c->pCurrent)->BecomesLive;
-                    _ASSERTE((liveState.ReadBit(slotIndex) && !becomesLive)
-                            || (!liveState.ReadBit(slotIndex) && becomesLive));
+                    _ASSERTE((c->liveState->ReadBit(slotIndex) && !becomesLive)
+                            || (!c->liveState->ReadBit(slotIndex) && becomesLive));
                     c->liveState->WriteBit(slotIndex, becomesLive);
                     *c->pCurrent++;
                 }

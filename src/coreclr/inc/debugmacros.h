@@ -28,7 +28,7 @@ bool GetStackTraceAtContext(SString & s, struct _CONTEXT * pContext);
 
 bool _DbgBreakCheck(LPCSTR szFile, int iLine, LPCSTR szExpr, BOOL fConstrained = FALSE);
 
-extern "C" void ryujit_host_panic(const char* msg);
+extern "C" [[noreturn]] void ryujit_host_panic(const char* msg);
 
 #define PRE_ASSERTE         /* if you need to change modes before doing asserts override */
 #define POST_ASSERTE        /* put it back */

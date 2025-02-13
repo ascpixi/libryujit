@@ -101,7 +101,7 @@ void try_catch(void* capture, void (*block)(void*), void (*handler)(int, void*))
     ryujit_get_tls()->exc_stack.pop_back();
 }
 
-void exc_throw(int val)
+[[noreturn]] void exc_throw(int val)
 {
     auto tls     = ryujit_get_tls();
     tls->exc_val = val;
@@ -116,7 +116,8 @@ void exc_throw(int val)
             tls->exc_catch_handler  = handler.catch_handler.body;
             tls->exc_catch_captures = handler.catch_handler.captures;
             LONGJMP(*handler.catch_handler.buf, 1);
-            return; // We shouldn't really reach this point...
+
+            // We shouldn't really reach this point...
         }
         else
         {

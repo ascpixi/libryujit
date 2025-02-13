@@ -8,7 +8,7 @@
 #include "gcinfoarraylist.h"
 #include "safemath.h"
 
-inline size_t roundUp(size_t size, size_t alignment)
+inline size_t roundUpTo(size_t size, size_t alignment)
 {
     // `alignment` must be a power of two
     assert(alignment != 0);
@@ -41,7 +41,7 @@ void GcInfoArrayListBase::AppendNewChunk(size_t firstChunkCapacity, size_t eleme
 {
     size_t chunkCapacity = (m_firstChunk == nullptr) ? firstChunkCapacity : (m_lastChunkCapacity * GrowthFactor);
 
-    S_SIZE_T chunkSize = S_SIZE_T(roundUp(sizeof(ChunkBase), chunkAlignment)) + (S_SIZE_T(elementSize) * S_SIZE_T(chunkCapacity));
+    S_SIZE_T chunkSize = S_SIZE_T(roundUpTo(sizeof(ChunkBase), chunkAlignment)) + (S_SIZE_T(elementSize) * S_SIZE_T(chunkCapacity));
     assert(!chunkSize.IsOverflow());
 
     ChunkBase* chunk = reinterpret_cast<ChunkBase*>(m_allocator->Alloc(chunkSize.Value()));
