@@ -98,6 +98,7 @@ set( JIT_SOURCES
   libryujit/polyfill.cpp
   libryujit/lib/nanoprintf.cpp
   libryujit/utf8.cpp
+  libryujit/criticalsection.cpp
   libryujit/forwards/check.cpp
   libryujit/forwards/gcinfo/gcinfoencoder.cpp
   libryujit/forwards/gcinfo/arraylist.cpp

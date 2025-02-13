@@ -9,7 +9,7 @@
 //      Passed to: `ICorJitHost::allocateMemory`
 extern "C" void* ryujit_host_alloc(size_t size);
 
-// Frees memory previous obtained by a call to `ryujit_alloc`.
+// Frees memory previous obtained by a call to `ryujit_host_alloc`.
 //      Passed to: `ICorJitHost::freeMemory`
 extern "C" void ryujit_host_free(void* block);
 
@@ -59,6 +59,19 @@ extern "C" void ryujit_host_write(FILE* stream, const char* buffer);
 
 // Similar to "strtod", but writes errno into the "errno" parameter.
 extern "C" double strtod_errno(const char* __restrict __nptr, char** __restrict __endptr, int* __errno);
+
+// Returns an opaque handle that represents a critical section object.
+extern "C" void* ryujit_host_create_lock();
+
+// Frees the resources associated with a previously allocated critical section
+// object (taken from "ryujit_host_create_lock").
+extern "C" void ryujit_host_delete_lock(void* handle);
+
+// Enters a critical section, identified by the given opaque handle.
+extern "C" void ryujit_host_enter_lock(void* handle);
+
+// Exits a critical section, identified by the given opaque handle.
+extern "C" void ryujit_host_exit_lock(void* handle);
 
 // Represents an allocator, where all allocation requests are passed through
 // `ryujit_host_alloc` and `ryujit_host_free`.
