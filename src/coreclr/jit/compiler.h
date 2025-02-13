@@ -1513,7 +1513,7 @@ public:
     virtual void        recordVarLocationsAtStartOfBB(BasicBlock* bb) = 0;
     virtual bool        willEnregisterLocalVars() const               = 0;
 #if TRACK_LSRA_STATS
-    //virtual void dumpLsraStatsCsv(FILE* file)     = 0;
+    virtual void dumpLsraStatsCsv(FILE* file)     = 0;
     virtual void dumpLsraStatsSummary(FILE* file) = 0;
 #endif // TRACK_LSRA_STATS
 };
@@ -6421,18 +6421,18 @@ public:
 
     unsigned fgGetCodeEstimate(BasicBlock* block);
 
-//#if DUMP_FLOWGRAPHS
-//    enum class PhasePosition
-//    {
-//        PrePhase,
-//        PostPhase
-//    };
-//    const char* fgProcessEscapes(const char* nameIn, escapeMapping_t* map);
-//    static void fgDumpTree(FILE* fgxFile, GenTree* const tree);
-//    FILE* fgOpenFlowGraphFile(bool* wbDontClose, Phases phase, PhasePosition pos, const char* type);
-//    //bool fgDumpFlowGraph(Phases phase, PhasePosition pos);
-//    void fgDumpFlowGraphLoops(FILE* file);
-//#endif // DUMP_FLOWGRAPHS
+#if DUMP_FLOWGRAPHS
+   enum class PhasePosition
+   {
+       PrePhase,
+       PostPhase
+   };
+   const char* fgProcessEscapes(const char* nameIn, escapeMapping_t* map);
+   static void fgDumpTree(FILE* fgxFile, GenTree* const tree);
+   FILE* fgOpenFlowGraphFile(bool* wbDontClose, Phases phase, PhasePosition pos, const char* type);
+   //bool fgDumpFlowGraph(Phases phase, PhasePosition pos);
+   void fgDumpFlowGraphLoops(FILE* file);
+#endif // DUMP_FLOWGRAPHS
 
 #ifdef DEBUG
 
@@ -11653,6 +11653,11 @@ private:
     void RecordStateAtEndOfCompilation();
 
 public:
+#if FUNC_INFO_LOGGING
+    static const char* compJitFuncInfoFilename; // If a log file for per-function information is required, this is the
+                                                // filename to write it to.
+    static FILE* compJitFuncInfoFile;           // And this is the actual FILE* to write to.
+#endif
 
 #if MEASURE_NOWAY
     void RecordNowayAssert(const char* filename, unsigned line, const char* condStr);
@@ -12763,10 +12768,12 @@ const instruction INS_BREAKPOINT = INS_ebreak;
 
 /*****************************************************************************/
 
+#if FEATURE_JIT_METHOD_PERF
 extern const BYTE genTypeSizes[];
 extern const BYTE genTypeAlignments[];
 extern const BYTE genTypeStSzs[];
 extern const BYTE genActualTypes[];
+#endif
 
 /*****************************************************************************/
 

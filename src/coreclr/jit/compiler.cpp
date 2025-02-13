@@ -106,6 +106,8 @@ inline bool _our_GetThreadCycles(uint64_t* cycleOut)
 
 #endif // which host OS
 
+#endif // FEATURE_JIT_METHOD_PERF
+
 const BYTE genTypeSizes[] = {
 #define DEF_TP(tn, nm, jitType, sz, sze, asze, st, al, regTyp, regFld, csr, ctr, tf) sz,
 #include "typelist.h"
@@ -130,7 +132,6 @@ const BYTE genActualTypes[] = {
 #undef DEF_TP
 };
 
-#endif // FEATURE_JIT_METHOD_PERF
 /*****************************************************************************/
 inline unsigned getCurTime()
 {
@@ -1563,15 +1564,15 @@ void Compiler::compShutdown()
 #endif
 
 #ifdef FEATURE_JIT_METHOD_PERF
-    //if (compJitTimeLogFilename != nullptr)
-    //{
-    //    FILE* jitTimeLogFile = fopen_utf8(compJitTimeLogFilename, "a");
-    //    if (jitTimeLogFile != nullptr)
-    //    {
-    //        CompTimeSummaryInfo::s_compTimeSummary.Print(jitTimeLogFile);
-    //        fclose(jitTimeLogFile);
-    //    }
-    //}
+    if (compJitTimeLogFilename != nullptr)
+    {
+       FILE* jitTimeLogFile = fopen_utf8(compJitTimeLogFilename, "a");
+       if (jitTimeLogFile != nullptr)
+       {
+           CompTimeSummaryInfo::s_compTimeSummary.Print(jitTimeLogFile);
+           fclose(jitTimeLogFile);
+       }
+    }
 
     JitTimer::Shutdown();
 #endif // FEATURE_JIT_METHOD_PERF
@@ -5277,12 +5278,12 @@ void Compiler::compCompile(void** methodCodePtr, uint32_t* methodCodeSize, JitFl
     // Generate code
     codeGen->genGenerateCode(methodCodePtr, methodCodeSize);
 
-//#if TRACK_LSRA_STATS
-//    if (JitConfig.DisplayLsraStats() == 2)
-//    {
-//        m_pLinearScan->dumpLsraStatsCsv(jitstdout());
-//    }
-//#endif // TRACK_LSRA_STATS
+#if TRACK_LSRA_STATS
+   if (JitConfig.DisplayLsraStats() == 2)
+   {
+       m_pLinearScan->dumpLsraStatsCsv(jitstdout());
+   }
+#endif // TRACK_LSRA_STATS
 
     // We're done -- set the active phase to the last phase
     // (which isn't really a phase)
@@ -5342,6 +5343,19 @@ void Compiler::compCompile(void** methodCodePtr, uint32_t* methodCodeSize, JitFl
 
     compFunctionTraceEnd(*methodCodePtr, *methodCodeSize, false);
     JITDUMP("Method code size: %d\n", (unsigned)(*methodCodeSize));
+
+#if FUNC_INFO_LOGGING
+    if (compJitFuncInfoFile != nullptr)
+    {
+        assert(!compIsForInlining());
+#ifdef DEBUG // We only have access to info.compFullName in DEBUG builds.
+        fprintf(compJitFuncInfoFile, "%s\n", info.compFullName);
+#elif FEATURE_SIMD
+        fprintf(compJitFuncInfoFile, " %s\n", eeGetMethodFullName(info.compMethodHnd));
+#endif
+        fflush(compJitFuncInfoFile);
+    }
+#endif // FUNC_INFO_LOGGING
 }
 
 #if FEATURE_LOOP_ALIGN
@@ -6036,6 +6050,27 @@ int Compiler::compCompile(CORINFO_MODULE_HANDLE classPtr,
     Compiler* me  = this;
     forceFrameJIT = (void*)&me; // let us see the this pointer in fastchecked build
 #endif
+
+#if FUNC_INFO_LOGGING
+    const char* tmpJitFuncInfoFilename = JitConfig.JitFuncInfoFile();
+
+    if (tmpJitFuncInfoFilename != nullptr)
+    {
+        const char* oldFuncInfoFileName =
+            InterlockedCompareExchangeT(&compJitFuncInfoFilename, tmpJitFuncInfoFilename, NULL);
+        if (oldFuncInfoFileName == nullptr)
+        {
+            assert(compJitFuncInfoFile == nullptr);
+            compJitFuncInfoFile = fopen_utf8(compJitFuncInfoFilename, "a");
+            if (compJitFuncInfoFile == nullptr)
+            {
+#if defined(DEBUG) && !defined(HOST_UNIX) // no 'perror' in the PAL
+                perror("Failed to open JitFuncInfoLogFile");
+#endif // defined(DEBUG) && !defined(HOST_UNIX)
+            }
+        }
+    }
+#endif // FUNC_INFO_LOGGING
 
     // if (s_compMethodsCount==0) setvbuf(jitstdout(), NULL, _IONBF, 0);
 
@@ -8466,7 +8501,7 @@ double JitTimer::s_cyclesPerSec = CachedCyclesPerSecond();
 #endif
 #endif // FEATURE_JIT_METHOD_PERF
 
-#if defined(FEATURE_JIT_METHOD_PERF) || DUMP_FLOWGRAPHS
+//#if defined(FEATURE_JIT_METHOD_PERF) || DUMP_FLOWGRAPHS
 const char* PhaseNames[] = {
 #define CompPhaseNameMacro(enum_nm, string_nm, hasChildren, parent, measureIR) string_nm,
 #include "compphases.h"
@@ -8476,8 +8511,7 @@ const char* PhaseEnums[] = {
 #define CompPhaseNameMacro(enum_nm, string_nm, hasChildren, parent, measureIR) #enum_nm,
 #include "compphases.h"
 };
-
-#endif // defined(FEATURE_JIT_METHOD_PERF) || DUMP_FLOWGRAPHS
+//#endif // defined(FEATURE_JIT_METHOD_PERF) || DUMP_FLOWGRAPHS
 
 #ifdef FEATURE_JIT_METHOD_PERF
 bool PhaseHasChildren[] = {

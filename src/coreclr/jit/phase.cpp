@@ -93,9 +93,9 @@ void Phase::PrePhase()
     }
 #endif // DEBUG
 
-//#if DUMP_FLOWGRAPHS
-//    comp->fgDumpFlowGraph(m_phase, Compiler::PhasePosition::PrePhase);
-//#endif // DUMP_FLOWGRAPHS
+#if DUMP_FLOWGRAPHS
+   comp->fgDumpFlowGraph(m_phase, Compiler::PhasePosition::PrePhase);
+#endif // DUMP_FLOWGRAPHS
 }
 
 //------------------------------------------------------------------------
@@ -110,9 +110,9 @@ void Phase::PostPhase(PhaseStatus status)
 
 #ifdef DEBUG
 
-//#if DUMP_FLOWGRAPHS
-//    comp->fgDumpFlowGraph(m_phase, Compiler::PhasePosition::PostPhase);
-//#endif // DUMP_FLOWGRAPHS
+#if DUMP_FLOWGRAPHS
+   comp->fgDumpFlowGraph(m_phase, Compiler::PhasePosition::PostPhase);
+#endif // DUMP_FLOWGRAPHS
 
     // Don't dump or check post phase unless the phase made changes.
     //

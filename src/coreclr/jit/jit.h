@@ -471,7 +471,7 @@ public:
 /*****************************************************************************/
 
 #define CSE_INTO_HANDLERS 0
-#define DUMP_FLOWGRAPHS   DEBUG // Support for creating Xml Flowgraph reports in *.fgx files
+#define DUMP_FLOWGRAPHS   0 // Support for creating Xml Flowgraph reports in *.fgx files
 
 /*****************************************************************************/
 
@@ -484,7 +484,7 @@ public:
 #define REARRANGE_ADDS   1
 
 #define FUNC_INFO_LOGGING                                                                                              \
-    1 // Support dumping function info to a file. In retail, only NYIs, with no function name,
+    0 // Support dumping function info to a file. In retail, only NYIs, with no function name,
       // are dumped.
 
 /*****************************************************************************/
@@ -510,7 +510,7 @@ public:
 #ifdef DEBUG
 #define MEASURE_MEM_ALLOC 1 // Collect memory allocation stats.
 #define LOOP_HOIST_STATS  1 // Collect loop hoisting stats.
-#define TRACK_LSRA_STATS  1 // Collect LSRA stats
+#define TRACK_LSRA_STATS  0 // Collect LSRA stats
 #define TRACK_ENREG_STATS 1 // Collect enregistration stats
 #else
 #define MEASURE_MEM_ALLOC 0 // You can set this to 1 to get memory stats in retail, as well

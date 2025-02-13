@@ -30,7 +30,7 @@
 #define FEATURE_SHARE_GENERIC_CODE
 
 #if defined(_DEBUG)
-    #define LOGGING
+    //#define LOGGING
 #endif
 
 #if 0
@@ -125,7 +125,7 @@
 // This feature in RyuJIT supersedes the FEATURE_JIT_TIMER. In addition to supporting the time log file, this
 // feature also supports using DOTNET_JitTimeLogCsv=a.csv, which will dump method-level and phase-level timing
 // statistics. Also see comments on FEATURE_JIT_TIMER.
-#define FEATURE_JIT_METHOD_PERF
+// #define FEATURE_JIT_METHOD_PERF
 
 
 #ifndef FEATURE_USE_ASM_GC_WRITE_BARRIERS

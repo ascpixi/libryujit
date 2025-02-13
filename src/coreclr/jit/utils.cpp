@@ -2128,6 +2128,7 @@ bool AssemblyNamesList2::IsInList(const char* assemblyName)
 //    return false;
 //}
 
+#if FEATURE_JIT_METHOD_PERF
 //------------------------------------------------------------------------
 // CachedCyclesPerSecond - Return the cached value of CycleTimer::CyclesPerSecond().
 //
@@ -2166,6 +2167,7 @@ double CachedCyclesPerSecond()
 
     return s_CachedCyclesPerSecond;
 }
+#endif
 
 #ifdef FEATURE_JIT_METHOD_PERF
 CycleCount::CycleCount()
