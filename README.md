@@ -1,5 +1,5 @@
 # libryujit
-`libryujit` is an experiment to create a static version if `libclrjit` which may be easily embedded inside various environments, e.g. kernels.
+`libryujit` is an experiment to create an easily embeddable, statically linked version of RyuJIT, also known internally within the .NET runtime as `libclrjit`.
 
 The goals of this experiment are:
 - remove all dependencies on user-mode libraries like glibc,
@@ -134,3 +134,45 @@ When consuming the library from a non-C++ environment, the following functions m
 - `operator delete(void*)` (mangled: `_ZdlPv`)
 - `operator new[](unsigned long)` (mangled: `_Znam`)
 - `operator new(unsigned long)` (mangled: `_Znwm`)
+
+## Usage
+In order to compile IL methods into native code, first initialize the JIT by invoking `jitStartup`. The `host` parameter can be obtained via `ryujit_get_host`.
+
+In order to provide the JIT with an interface to its underlying execution environment, create a `ICorJitInfo` object via `ryujit_create_jitinfo`. This function has the following declaration:
+
+```cpp
+// Creates a `ICorJitInfo` object which can be used to create an interface between
+// the invoking execution environment (EE) with the JIT.
+// Will use `ryujit_host_alloc` to allocate memory for the object.
+//
+// Parameters:
+// - `self`: an arbitrary pointer to pass onto all methods inside `methods`.
+// - `reportNotImplemented`: a function to call if a method is called that has its pointer set to `NULL` inside `methods`.
+// - `methods`: a table of methods the JIT is allowed to invoke.
+ICorJitInfo* ryujit_create_jitinfo(
+    void* self,
+    void (*reportNotImplemented)(const char* methodName),
+    JitInfoMethods* methods
+)
+```
+
+`JitInfoMethods` is a large struct, which contains pointers to all of the callbacks that the JIT can use. If a pointer to a function is `NULL`, the function is considered not to be implemented. You can find the declaration of the struct in [`/src/coreclr/jit/libryujit/interopjitinfo.h`](https://github.com/ascpixi/libryujit/blob/main/src/coreclr/jit/libryujit/interopjitinfo.h#L21). An example on how to implement these functions can be taken from the actual .NET runtime; the names of the members of the structure are equivalent to the method names of a `ICorJitInfo` object.
+
+An IL method can be compiled to native code via `ryujit_compile_method`.
+
+```cpp
+// Compiles the given method, given a handle (object pointer) to an `ICorJitCompiler`
+// object. In most cases, a `ICorJitCompiler*` should be treated like an opaque handle.
+//
+// You may obtain a `ICorJitInfo*` via the `ryujit_create_jitinfo` function.
+CorJitResult ryujit_compile_method(
+    ICorJitCompiler* self,
+    ICorJitInfo*                    comp,               /* IN */
+    struct CORINFO_METHOD_INFO*     info,               /* IN */
+    unsigned /* code:CorJitFlag */  flags,              /* IN */
+    uint8_t**                       nativeEntry,        /* OUT */
+    uint32_t*                       nativeSizeOfCode    /* OUT */
+)
+```
+
+The method is described via the `info` parameter. The JIT can resolve other entities the method may reference via the function table provided to `ryujit_create_jitinfo`. The `self` parameter may be sourced from the `getJit` function, and `comp` should be an object returned from `ryujit_create_jitinfo`.
