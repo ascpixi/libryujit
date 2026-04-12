@@ -1789,7 +1789,7 @@ void GcInfoEncoder::Build()
                     _ASSERTE((c->liveState->ReadBit(slotIndex) && !becomesLive)
                             || (!c->liveState->ReadBit(slotIndex) && becomesLive));
                     c->liveState->WriteBit(slotIndex, becomesLive);
-                    *c->pCurrent++;
+                    (*c->pCurrent)++;
                 }
             }
 
